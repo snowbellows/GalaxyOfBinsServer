@@ -2,6 +2,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+var MODAPIKey = builder.Configuration["MelbourneOpenData:APIKey"];
+
+builder.Services.AddHttpClient(
+    "MelbourneOpenData",
+    client =>
+    {
+        client.BaseAddress = new Uri("https://data.melbourne.vic.gov.au");
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.DefaultRequestHeaders.Add("Authorization", "Apikey " + MODAPIKey);
+    }
+);
+
+builder.Services.AddScoped<MelbourneOpenDataService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -15,5 +29,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapGet("/", () => "Hello World!");
+
+app.MapGet(
+    "/melbourne-open-data/{dataset}",
+    async (MelbourneOpenDataService melbourneOpenDataService, string dataset) =>
+    {
+        var data = await melbourneOpenDataService.GetDatasetAsync(dataset);
+        return Results.Ok(data);
+    }
+);
 
 app.Run();
