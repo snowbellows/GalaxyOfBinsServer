@@ -51,11 +51,8 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
             public string? Time { get; set; }
             public float? Temperature { get; set; }
             public float? Distance { get; set; }
-
-            // public float? Filllevel { get; set; }
             public float? Battery { get; set; }
             public LatLongInfo? LatLong { get; set; }
-
             public string? SensorName { get; set; }
             public float? FillLevel { get; set; }
 
