@@ -33,10 +33,10 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/", () => "Hello World!");
 
 app.MapGet(
-    "/melbourne-open-data/{dataset}",
-    async (MelbourneOpenDataService melbourneOpenDataService, string dataset) =>
+    "/melbourne-open-data/bin-data",
+    async (MelbourneOpenDataService melbourneOpenDataService) =>
     {
-        var data = await melbourneOpenDataService.GetDatasetAsync(dataset);
+        var data = await melbourneOpenDataService.GetBinDataAsync();
         return Results.Ok(data);
     }
 );

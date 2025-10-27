@@ -1,33 +1,68 @@
+using System.Text.Json;
+
 namespace GalaxyOfBinsServer.MelbourneOpenData
 {
     public class MelbourneOpenDataService
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        private readonly JsonSerializerOptions jsonSerializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        };
+
         public MelbourneOpenDataService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<string> GetDatasetAsync(string dataset)
+        public async Task<NetvoxR718xBinSensorResponse?> GetBinDataAsync()
         {
             try
             {
                 var client = _httpClientFactory.CreateClient("MelbourneOpenData");
 
-                using HttpResponseMessage response = await client.GetAsync(
-                    "/api/explore/v2.1/catalog/datasets/" + dataset + "/records"
+                var json = await client.GetStringAsync(
+                    "/api/explore/v2.1/catalog/datasets/netvox-r718x-bin-sensor/records"
                 );
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                return responseBody;
+                var response = JsonSerializer.Deserialize<NetvoxR718xBinSensorResponse>(
+                    json,
+                    jsonSerializerOptions
+                );
+                return response;
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
-                return "Unable to fetch bin data";
+                return null;
+            }
+        }
+    }
+
+    public class NetvoxR718xBinSensorResponse
+    {
+        public float? TotalCount { get; set; }
+        public NetvoxR718xBinSensorData[]? Results { get; set; }
+
+        public class NetvoxR718xBinSensorData
+        {
+            public string? DevId { get; set; }
+            public string? Time { get; set; }
+            public float? Temperature { get; set; }
+            public float? Distance { get; set; }
+
+            // public float? Filllevel { get; set; }
+            public float? Battery { get; set; }
+            public LatLongInfo? LatLong { get; set; }
+
+            public string? SensorName { get; set; }
+            public float? FillLevel { get; set; }
+
+            public class LatLongInfo
+            {
+                public float Lat { get; set; }
+                public float Lon { get; set; }
             }
         }
     }
