@@ -6,14 +6,20 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        private readonly ILogger<MelbourneOpenDataService> _logger;
+
         private readonly JsonSerializerOptions jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         };
 
-        public MelbourneOpenDataService(IHttpClientFactory httpClientFactory)
+        public MelbourneOpenDataService(
+            IHttpClientFactory httpClientFactory,
+            ILogger<MelbourneOpenDataService> logger
+        )
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         public async Task<NetvoxR718xBinSensorResponse?> GetBinDataAsync(
@@ -28,14 +34,17 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
             {
                 var client = _httpClientFactory.CreateClient("MelbourneOpenData");
 
-                var json = await client.GetStringAsync(
+                var url =
                     "/api/explore/v2.1/catalog/datasets/netvox-r718x-bin-sensor/records"
-                        + (where != null ? "?where=" + where : "")
-                        + (orderBy != null ? "?orderBy=" + orderBy : "")
-                        + (groupBy != null ? "?groupBy=" + groupBy : "")
-                        + (offset != null ? "?offset=" + offset : "")
-                        + (limit != null ? "?limit=" + limit : "")
-                );
+                    + (where != null ? "?where=" + where : "")
+                    + (orderBy != null ? "?orderBy=" + orderBy : "")
+                    + (groupBy != null ? "?groupBy=" + groupBy : "")
+                    + (offset != null ? "?offset=" + offset : "")
+                    + (limit != null ? "?limit=" + limit : "");
+
+                _logger.LogInformation(url);
+
+                var json = await client.GetStringAsync(url);
                 var response = JsonSerializer.Deserialize<NetvoxR718xBinSensorResponse>(
                     json,
                     jsonSerializerOptions
@@ -44,8 +53,7 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
+                _logger.LogError(e, "An error occurred while fetching bin data");
                 return null;
             }
         }
