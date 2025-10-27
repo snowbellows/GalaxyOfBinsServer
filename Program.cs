@@ -34,9 +34,22 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGet(
     "/melbourne-open-data/bin-data",
-    async (MelbourneOpenDataService melbourneOpenDataService) =>
+    async (
+        string? where,
+        string? orderBy,
+        string? groupBy,
+        int? offset,
+        int? limit,
+        MelbourneOpenDataService melbourneOpenDataService
+    ) =>
     {
-        var data = await melbourneOpenDataService.GetBinDataAsync();
+        var data = await melbourneOpenDataService.GetBinDataAsync(
+            where,
+            orderBy,
+            groupBy,
+            offset,
+            limit
+        );
         return Results.Ok(data);
     }
 );

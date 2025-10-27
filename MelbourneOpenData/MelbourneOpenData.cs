@@ -16,7 +16,13 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<NetvoxR718xBinSensorResponse?> GetBinDataAsync()
+        public async Task<NetvoxR718xBinSensorResponse?> GetBinDataAsync(
+            string? where,
+            string? orderBy,
+            string? groupBy,
+            int? offset,
+            int? limit
+        )
         {
             try
             {
@@ -24,6 +30,11 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
 
                 var json = await client.GetStringAsync(
                     "/api/explore/v2.1/catalog/datasets/netvox-r718x-bin-sensor/records"
+                        + (where != null ? "?where=" + where : "")
+                        + (orderBy != null ? "?orderBy=" + orderBy : "")
+                        + (groupBy != null ? "?groupBy=" + groupBy : "")
+                        + (offset != null ? "?offset=" + offset : "")
+                        + (limit != null ? "?limit=" + limit : "")
                 );
                 var response = JsonSerializer.Deserialize<NetvoxR718xBinSensorResponse>(
                     json,
