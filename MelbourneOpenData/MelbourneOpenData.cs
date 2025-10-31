@@ -1,4 +1,6 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Web;
 
 namespace GalaxyOfBinsServer.MelbourneOpenData
 {
@@ -34,17 +36,53 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
             {
                 var client = _httpClientFactory.CreateClient("MelbourneOpenData");
 
-                var url =
-                    "/api/explore/v2.1/catalog/datasets/netvox-r718x-bin-sensor/records"
-                    + (where != null ? "?where=" + where : "")
-                    + (orderBy != null ? "?orderBy=" + orderBy : "")
-                    + (groupBy != null ? "?groupBy=" + groupBy : "")
-                    + (offset != null ? "?offset=" + offset : "")
-                    + (limit != null ? "?limit=" + limit : "");
+                var uri = new UriBuilder(
+                    "https://data.melbourne.vic.gov.au/api/explore/v2.1/catalog/datasets/netvox-r718x-bin-sensor/records"
+                );
 
-                _logger.LogInformation(url);
+                if (where != null)
+                {
+                    if (uri.Query != null && uri.Query.Length > 1)
+                        uri.Query = uri.Query + "&where=" + HttpUtility.UrlEncode(where);
+                    else
+                        uri.Query = "?where=" + HttpUtility.UrlEncode(where);
+                }
 
-                var json = await client.GetStringAsync(url);
+                if (orderBy != null)
+                {
+                    if (uri.Query != null && uri.Query.Length > 1)
+                        uri.Query = uri.Query + "&orderBy=" + HttpUtility.UrlEncode(orderBy);
+                    else
+                        uri.Query = "?orderBy=" + HttpUtility.UrlEncode(orderBy);
+                }
+
+                if (groupBy != null)
+                {
+                    if (uri.Query != null && uri.Query.Length > 1)
+                        uri.Query = uri.Query + "&groupBy=" + HttpUtility.UrlEncode(groupBy);
+                    else
+                        uri.Query = "?groupBy=" + HttpUtility.UrlEncode(groupBy);
+                }
+
+                if (offset != null)
+                {
+                    if (uri.Query != null && uri.Query.Length > 1)
+                        uri.Query = uri.Query + "&offset=" + offset;
+                    else
+                        uri.Query = "?offset=" + offset;
+                }
+
+                if (limit != null)
+                {
+                    if (uri.Query != null && uri.Query.Length > 1)
+                        uri.Query = uri.Query + "&limit=" + limit;
+                    else
+                        uri.Query = "?limit=" + limit;
+                }
+
+                _logger.LogInformation(uri.ToString());
+
+                var json = await client.GetStringAsync(uri.ToString());
                 var response = JsonSerializer.Deserialize<NetvoxR718xBinSensorResponse>(
                     json,
                     jsonSerializerOptions
