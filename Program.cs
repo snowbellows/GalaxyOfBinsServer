@@ -1,5 +1,7 @@
 using GalaxyOfBinsServer.MelbourneOpenData;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
@@ -18,6 +20,38 @@ builder.Services.AddHttpClient(
 
 builder.Services.AddScoped<MelbourneOpenDataService>();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            name: MyAllowSpecificOrigins,
+            policy =>
+            {
+                policy
+                    .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            }
+        );
+    });
+}
+else
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            name: MyAllowSpecificOrigins,
+            policy =>
+            {
+                policy
+                    .WithOrigins("https://galaxy-of-bins.netlify.app/")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            }
+        );
+    });
+}
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -29,6 +63,8 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v1.json", "v1");
     });
 }
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.MapGet("/", () => "Hello World!");
 
