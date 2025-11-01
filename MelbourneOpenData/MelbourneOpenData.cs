@@ -51,17 +51,17 @@ namespace GalaxyOfBinsServer.MelbourneOpenData
                 if (orderBy != null)
                 {
                     if (uri.Query != null && uri.Query.Length > 1)
-                        uri.Query = uri.Query + "&orderBy=" + HttpUtility.UrlEncode(orderBy);
+                        uri.Query = uri.Query + "&order_by=" + HttpUtility.UrlEncode(orderBy);
                     else
-                        uri.Query = "?orderBy=" + HttpUtility.UrlEncode(orderBy);
+                        uri.Query = "?order_by=" + HttpUtility.UrlEncode(orderBy);
                 }
 
                 if (groupBy != null)
                 {
                     if (uri.Query != null && uri.Query.Length > 1)
-                        uri.Query = uri.Query + "&groupBy=" + HttpUtility.UrlEncode(groupBy);
+                        uri.Query = uri.Query + "&group_by=" + HttpUtility.UrlEncode(groupBy);
                     else
-                        uri.Query = "?groupBy=" + HttpUtility.UrlEncode(groupBy);
+                        uri.Query = "?group_by=" + HttpUtility.UrlEncode(groupBy);
                 }
 
                 if (offset != null)

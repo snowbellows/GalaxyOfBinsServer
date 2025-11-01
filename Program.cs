@@ -36,8 +36,8 @@ app.MapGet(
     "/melbourne-open-data/bin-data",
     async (
         string? where,
-        string? orderBy,
-        string? groupBy,
+        string? order_by,
+        string? group_by,
         int? offset,
         int? limit,
         MelbourneOpenDataService melbourneOpenDataService
@@ -45,8 +45,8 @@ app.MapGet(
     {
         var data = await melbourneOpenDataService.GetBinDataAsync(
             where,
-            orderBy,
-            groupBy,
+            order_by,
+            group_by,
             offset,
             limit
         );
