@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using GalaxyOfBinsServer.MelbourneOpenData;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -6,7 +8,31 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-var MODAPIKey = builder.Configuration["MelbourneOpenData:APIKey"];
+// Get Melbourne Open Data API Key from configuration or Azure Key Vault
+var MODAPIKey = "";
+
+if (builder.Environment.IsDevelopment())
+{
+    // In development, retrieve the API key from appsettings.Development.json
+    MODAPIKey = builder.Configuration["MelbourneOpenData:APIKey"];
+}
+else if (builder.Environment.IsProduction())
+{
+    // In production, retrieve the API key from Azure Key Vault
+    var keyVaultEndpoint = new Uri(
+        builder.Configuration["KeyVault:VaultUri"]
+            ?? throw new InvalidOperationException("Key Vault URI not configured.")
+    );
+    var credential = new DefaultAzureCredential();
+    var client = new SecretClient(keyVaultEndpoint, credential);
+    var secret = client.GetSecret("CoMOpenDataPortalAPIKey");
+    MODAPIKey = secret.Value.Value;
+}
+
+if (MODAPIKey == null || MODAPIKey == "")
+{
+    throw new InvalidOperationException("Melbourne Open Data API Key is not configured.");
+}
 
 builder.Services.AddHttpClient(
     "MelbourneOpenData",
