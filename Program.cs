@@ -20,7 +20,7 @@ else if (builder.Environment.IsProduction())
 {
     // In production, retrieve the API key from Azure Key Vault
     var keyVaultEndpoint = new Uri(
-        builder.Configuration["KeyVault-VaultUri"]
+        Environment.GetEnvironmentVariable("KeyVault-VaultUri")
             ?? throw new InvalidOperationException("Key Vault URI not configured.")
     );
     var credential = new DefaultAzureCredential();
