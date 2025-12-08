@@ -71,7 +71,7 @@ else
             policy =>
             {
                 policy
-                    .WithOrigins("https://galaxy-of-bins.netlify.app/")
+                    .WithOrigins("https://galaxy-of-bins.netlify.app")
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             }
